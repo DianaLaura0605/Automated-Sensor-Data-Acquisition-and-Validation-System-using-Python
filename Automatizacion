@@ -1,0 +1,148 @@
+# ============================================================
+# SISTEMA DE VALIDACIÓN DE SENSORES (SIMULACIÓN)
+# Archivo: adquisicion_datos.py
+# ============================================================
+
+# ---------------------------
+# IMPORTACIÓN DE LIBRERÍAS
+# ---------------------------
+
+import time
+import csv
+import random
+import os
+from datetime import datetime
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# ---------------------------
+# PARÁMETROS DEL SISTEMA
+# ---------------------------
+
+NUM_MUESTRAS = 50
+INTERVALO = 0.5
+ARCHIVO_CSV = "datos_simulados.csv"
+CARPETA_IMAGENES = "imagenes"
+
+# Crear carpeta para las gráficas si no existe
+os.makedirs(CARPETA_IMAGENES, exist_ok=True)
+
+# ---------------------------
+# FUNCIONES DE SENSORES
+# ---------------------------
+
+def sensor_temperatura():
+    """
+    Simula un sensor de temperatura en °C
+    """
+    return round(random.uniform(20.0, 30.0), 2)
+
+
+def sensor_presion():
+    """
+    Simula un sensor de presión en kPa
+    """
+    return round(random.uniform(95.0, 105.0), 2)
+
+# ---------------------------
+# ADQUISICIÓN DE DATOS
+# ---------------------------
+
+def adquirir_datos():
+    """
+    Simula la adquisición de datos de los sensores
+    """
+    datos = []
+
+    print("Iniciando adquisición de datos...\n")
+
+    for i in range(NUM_MUESTRAS):
+        tiempo = datetime.now().strftime("%H:%M:%S")
+        temperatura = sensor_temperatura()
+        presion = sensor_presion()
+
+        datos.append([tiempo, temperatura, presion])
+
+        print(f"Muestra {i+1}: Temp = {temperatura} °C | Presión = {presion} kPa")
+        time.sleep(INTERVALO)
+
+    return datos
+
+# ---------------------------
+# GUARDADO DE DATOS
+# ---------------------------
+
+def guardar_csv(datos):
+    """
+    Guarda los datos adquiridos en un archivo CSV
+    """
+    with open(ARCHIVO_CSV, mode="w", newline="") as archivo:
+        escritor = csv.writer(archivo)
+        escritor.writerow(["Tiempo", "Temperatura (°C)", "Presión (kPa)"])
+        escritor.writerows(datos)
+
+    print("\nDatos guardados correctamente en datos_simulados.csv")
+
+# ---------------------------
+# VISUALIZACIÓN DE DATOS
+# ---------------------------
+
+def graficar_datos():
+    """
+    Genera y muestra las gráficas de los sensores
+    """
+
+    # Leer el archivo CSV indicando la codificación correcta
+    df = pd.read_csv(ARCHIVO_CSV, encoding="latin1")
+
+    # -------- TEMPERATURA --------
+    plt.figure()
+    plt.plot(df["Temperatura (°C)"])
+    plt.title("Sensor de Temperatura")
+    plt.xlabel("Número de muestra")
+    plt.ylabel("Temperatura (°C)")
+    plt.grid()
+
+    # Guardar imagen
+    plt.savefig(f"{CARPETA_IMAGENES}/sensor_temperatura.png")
+
+    # Mostrar gráfica en pantalla
+    plt.show()
+
+    # -------- PRESIÓN --------
+    plt.figure()
+    plt.plot(df["Presión (kPa)"])
+    plt.title("Sensor de Presión")
+    plt.xlabel("Número de muestra")
+    plt.ylabel("Presión (kPa)")
+    plt.grid()
+
+    # Guardar imagen
+    plt.savefig(f"{CARPETA_IMAGENES}/sensor_presion.png")
+
+    # Mostrar gráfica en pantalla
+    plt.show()
+
+    print("Gráficas generadas y mostradas correctamente")
+
+# ---------------------------
+# FUNCIÓN PRINCIPAL
+# ---------------------------
+
+def main():
+    """
+    Automatiza todo el proceso
+    """
+    datos = adquirir_datos()
+    guardar_csv(datos)
+    graficar_datos()
+
+    print("\nProceso de adquisición finalizado.")
+
+# ---------------------------
+# EJECUCIÓN
+# ---------------------------
+
+if __name__ == "__main__":
+    main()
